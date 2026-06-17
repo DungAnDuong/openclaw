@@ -1,0 +1,7 @@
+{
+  "openclaw_config_dir": "",
+  "workspace_dir": "",
+  "logs_dir": "logs",
+  "data_dir": "data",
+  "backups_dir": "backups"
+}

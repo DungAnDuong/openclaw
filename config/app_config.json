@@ -1,0 +1,10 @@
+{
+  "gateway_port": 18789,
+  "gateway_host": "127.0.0.1",
+  "auto_install_daemon": false,
+  "verbose": false,
+  "log_level": "info",
+  "control_ui_enabled": true,
+  "sandbox_mode": "off",
+  "remote_access": false
+}

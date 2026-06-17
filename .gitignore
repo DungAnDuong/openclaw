@@ -68,6 +68,20 @@ src/canvas-host/a2ui/*.bundle.js
 src/canvas-host/a2ui/*.map
 .bundle.hash
 
+# OpenClaw user configuration (contains API keys - do NOT commit)
+config/llm_config.json
+config/bot_config.json
+
+# Runtime directories
+logs/
+data/
+backups/
+
+# Keep directory structure
+!logs/.gitkeep
+!data/.gitkeep
+!backups/.gitkeep
+
 # fastlane (iOS)
 apps/ios/fastlane/README.md
 apps/ios/fastlane/report.xml
@@ -156,3 +170,4 @@ extensions/qa-lab/web/dist/
 # Generated bundled plugin runtime dependency manifests
 extensions/**/.openclaw-runtime-deps.json
 extensions/**/.openclaw-runtime-deps-stamp.json
+.copilot-specs-cache/
