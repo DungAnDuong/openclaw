@@ -29,7 +29,7 @@ call :LOG "Thoi gian: %date% %time%"
 :: ============================================================
 call :STEP "BUOC 1: Kiem tra Node.js..."
 
-node --version >nul 2>&1
+cmd /c "node --version >nul 2>&1"
 if errorlevel 1 (
     call :FAIL "Node.js chua duoc cai dat!"
     echo.
@@ -45,13 +45,12 @@ if errorlevel 1 (
     exit /b 1
 )
 
-for /f "tokens=1" %%v in ('node --version 2^>^&1') do set "NODE_VERSION=%%v"
+for /f "tokens=1" %%v in ('cmd /c "node --version 2^>nul"') do set "NODE_VERSION=%%v"
 call :LOG "Node.js phien ban: %NODE_VERSION%"
 call :OK "Node.js: %NODE_VERSION%"
 
 :: Kiem tra phien ban toi thieu (22)
-for /f "tokens=1 delims=v." %%v in ("%NODE_VERSION%") do set "NODE_MAJOR=%%v"
-for /f "tokens=2 delims=v." %%v in ("%NODE_VERSION%") do set "NODE_MAJOR=%%v"
+for /f "tokens=1 delims=." %%v in ("%NODE_VERSION:v=%") do set "NODE_MAJOR=%%v"
 if !NODE_MAJOR! LSS 22 (
     call :FAIL "Node.js phien ban qua cu: %NODE_VERSION%"
     echo  Can Node.js 22.14+ hoac moi hon. Hay cap nhat tai: https://nodejs.org
@@ -64,13 +63,13 @@ if !NODE_MAJOR! LSS 22 (
 :: ============================================================
 call :STEP "BUOC 2: Kiem tra npm..."
 
-npm --version >nul 2>&1
+cmd /c "npm --version >nul 2>&1"
 if errorlevel 1 (
     call :FAIL "npm khong hoat dong! Cai lai Node.js."
     pause
     exit /b 1
 )
-for /f "tokens=1" %%v in ('npm --version 2^>^&1') do set "NPM_VERSION=%%v"
+for /f "tokens=1" %%v in ('cmd /c "npm --version 2^>nul"') do set "NPM_VERSION=%%v"
 call :OK "npm: v%NPM_VERSION%"
 call :LOG "npm phien ban: v%NPM_VERSION%"
 
@@ -134,7 +133,10 @@ call :STEP "BUOC 5: Cai dat OpenClaw tu npm..."
 echo  Dang cai openclaw@latest tu npm...
 call :LOG "Bat dau cai openclaw tu npm"
 
-npm install -g openclaw@latest 2>&1 | tee -a "%LOGFILE%"
+cmd /c "npm install -g openclaw@latest" > "%TEMP%\npm_tmp.txt" 2>&1
+type "%TEMP%\npm_tmp.txt"
+type "%TEMP%\npm_tmp.txt" >> "%LOGFILE%"
+del "%TEMP%\npm_tmp.txt" >nul 2>&1
 if errorlevel 1 (
     call :FAIL "Cai dat OpenClaw that bai!"
     echo.
@@ -150,17 +152,19 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: Cap nhat PATH voi npm global bin de nhan dien lenh moi cai
+set "PATH=%APPDATA%\npm;%PATH%"
+
 :: Xac nhan cai dat thanh cong
-openclaw --version >nul 2>&1
+cmd /c "openclaw --version >nul 2>&1"
 if errorlevel 1 (
-    call :FAIL "Cai dat xong nhung lenh openclaw khong hoat dong!"
-    echo  Thu dong/mo lai cua so lenh (cmd/terminal^) va chay lai.
-    call :LOG "LOI: Lenh openclaw khong nhan dien sau khi cai dat"
+    call :WARN "Lenh openclaw chua co trong PATH cua phien lam viec hien tai."
+    echo  CAI DAT THANH CONG nhung can mo lai cua so lenh (cmd/terminal^).
+    call :LOG "CANH BAO: Lenh openclaw khong nhan dien trong phien hien tai - can mo lai terminal"
     pause
-    exit /b 1
 )
 
-for /f "tokens=1" %%v in ('openclaw --version 2^>^&1') do set "OC_VERSION=%%v"
+for /f "tokens=1" %%v in ('cmd /c "openclaw --version 2^>nul"') do set "OC_VERSION=%%v"
 call :OK "OpenClaw da cai dat: v%OC_VERSION%"
 call :LOG "OpenClaw phien ban: v%OC_VERSION%"
 
@@ -188,7 +192,7 @@ call :OK "Thu muc da tao xong"
 :: ============================================================
 call :STEP "BUOC 7: Ap dung cau hinh vao OpenClaw..."
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\apply_openclaw_config.ps1" 2>&1 | tee -a "%LOGFILE%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\apply_openclaw_config.ps1" >> "%LOGFILE%" 2>&1
 if errorlevel 1 (
     call :WARN "Co loi khi ap dung cau hinh. Kiem tra lai config\llm_config.json"
     call :LOG "CANH BAO: Loi ap dung cau hinh"
@@ -201,7 +205,7 @@ if errorlevel 1 (
 :: ============================================================
 call :STEP "BUOC 8: Kiem tra he thong..."
 
-openclaw doctor 2>&1 | tee -a "%LOGFILE%"
+cmd /c "openclaw doctor" >> "%LOGFILE%" 2>&1
 if errorlevel 1 (
     call :WARN "openclaw doctor phat hien mot so van de. Xem log de biet them."
     call :LOG "CANH BAO: openclaw doctor bao loi"
